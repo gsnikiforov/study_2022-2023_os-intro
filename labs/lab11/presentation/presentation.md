@@ -1,31 +1,69 @@
 ---
 ## Front matter
-lang: ru-RU
-title: Структура научной презентации
-subtitle: Простейший шаблон
-author:
-  - Кулябов Д. С.
-institute:
-  - Российский университет дружбы народов, Москва, Россия
-  - Объединённый институт ядерных исследований, Дубна, Россия
-date: 01 января 1970
+title: "Отчёт по лабораторной работе №11"
+subtitle: "Программирование в командной процессоре ОС UNIX. Ветвления и циклы"
+author: "Никифоров Георгий Сергеевич"
 
-## i18n babel
+## Generic otions
+lang: ru-RU
+toc-title: "Содержание"
+
+## Bibliography
+## bibliography: bib/cite.bib
+csl: pandoc/csl/gost-r-7-0-5-2008-numeric.csl
+
+## Pdf output format
+toc: true # Table of contents
+toc-depth: 2
+lof: true # List of figures
+lot: false # List of tables
+fontsize: 12pt
+linestretch: 1.5
+papersize: a4
+documentclass: scrreprt
+## I18n polyglossia
+polyglossia-lang:
+  name: russian
+  options:
+	- spelling=modern
+	- babelshorthands=true
+polyglossia-otherlangs:
+  name: english
+## I18n babel
 babel-lang: russian
 babel-otherlangs: english
-
-## Formatting pdf
-toc: false
-toc-title: Содержание
-slide_level: 2
-aspectratio: 169
-section-titles: true
-theme: metropolis
+## Fonts
+mainfont: PT Serif
+romanfont: PT Serif
+sansfont: PT Sans
+monofont: PT Mono
+mainfontoptions: Ligatures=TeX
+romanfontoptions: Ligatures=TeX
+sansfontoptions: Ligatures=TeX,Scale=MatchLowercase
+monofontoptions: Scale=MatchLowercase,Scale=0.9
+## Biblatex
+biblatex: true
+biblio-style: "gost-numeric"
+biblatexoptions:
+  - parentracker=true
+  - backend=biber
+  - hyperref=auto
+  - language=auto
+  - autolang=other*
+  - citestyle=gost-numeric
+## Pandoc-crossref LaTeX customization
+figureTitle: "Рис."
+tableTitle: "Таблица"
+listingTitle: "Листинг"
+lofTitle: "Список иллюстраций"
+lotTitle: "Список таблиц"
+lolTitle: "Листинги"
+## Misc options
+indent: true
 header-includes:
- - \metroset{progressbar=frametitle,sectionpage=progressbar,numbering=fraction}
- - '\makeatletter'
- - '\beamer@ignorenonframefalse'
- - '\makeatother'
+  - \usepackage{indentfirst}
+  - \usepackage{float} # keep figures where there are in the text
+  - \floatplacement{figure}{H} # keep figures where there are in the text
 ---
 
 # Информация
@@ -35,17 +73,12 @@ header-includes:
 :::::::::::::: {.columns align=center}
 ::: {.column width="70%"}
 
-  * Кулябов Дмитрий Сергеевич
-  * д.ф.-м.н., профессор
-  * профессор кафедры прикладной информатики и теории вероятностей
-  * Российский университет дружбы народов
-  * [kulyabov-ds@rudn.ru](mailto:kulyabov-ds@rudn.ru)
-  * <https://yamadharma.github.io/ru/>
-
-:::
-::: {.column width="30%"}
-
-![](./image/kulyabov.jpg)
+  * ГОРЕГИЙ СРЕРГЕЙВИЧ НКЕИФОРОВ
+  * ищу женственную
+  * родственную душу
+  * которая заполнит внутренню пустоту
+  * а я ее
+  * <https://github.com/gsnikiforov>
 
 :::
 ::::::::::::::
@@ -54,157 +87,200 @@ header-includes:
 
 ## Актуальность
 
-- Важно донести результаты своих исследований до окружающих
-- Научная презентация --- рабочий инструмент исследователя
-- Необходимо создавать презентацию быстро
-- Желательна минимизация усилий для создания презентации
+- Умение программировать в ОС Unix бывает полезным навыком при работе с компьютером.
 
-## Объект и предмет исследования
+# Ход работы
 
-- Презентация как текст
-- Программное обеспечение для создания презентаций
-- Входные и выходные форматы презентаций
+## Цель работы
+Цель работы — изучить основы программирования в командной оболочке OS Unix. 
 
-## Цели и задачи
 
-- Создать шаблон презентации в Markdown
-- Описать алгоритм создания выходных форматов презентаций
+# Выполнение лабораторной работы
 
-## Материалы и методы
+## Ход работы
 
-- Процессор `pandoc` для входного формата Markdown
-- Результирующие форматы
-	- `pdf`
-	- `html`
-- Автоматизация процесса создания: `Makefile`
+Необходимо выполнить задания:
 
-# Создание презентации
+1. Используя команды getopts grep, написать командный файл, который анализирует командную строку с ключами:
+– `-iinputfile` — прочитать данные из указанного файла;
+– `-ooutputfile` — вывести данные в указанный файл;
+– `-pшаблон` — указать шаблон для поиска;
+– `-C` — различать большие и малые буквы;
+– `-n` — выдавать номера строк.
+а затем ищет в указанном файле нужные строки, определяемые ключом -p.
 
-## Процессор `pandoc`
+Данная задача была решена в файле `stepa.sh`:
 
-- Pandoc: преобразователь текстовых файлов
-- Сайт: <https://pandoc.org/>
-- Репозиторий: <https://github.com/jgm/pandoc>
+``` bash
+#!/bin/bash
 
-## Формат `pdf`
+# Unpacking parameters
+while getopts i:o:p:Cn flag
+do
+    case $flag in
+        i)  inputFile=$OPTARG;;
+        o)  outputFile=$OPTARG;;
+        p)  pattern=$OPTARG;;
+        C)  C='--color=always'; echo Flag -$flag will switch color output on;;
+        n)  n=n;;
+        *)  echo Illegal option $flag used!;;
+    esac
+done
 
-- Использование LaTeX
-- Пакет для презентации: [beamer](https://ctan.org/pkg/beamer)
-- Тема оформления: `metropolis`
-
-## Код для формата `pdf`
-
-```yaml
-slide_level: 2
-aspectratio: 169
-section-titles: true
-theme: metropolis
+touch $outputFile
+grep $C -${n}e $pattern $inputFile > $outputFile
 ```
 
-## Формат `html`
+2. Написать на языке C программу, которая вводит число и определяет, является ли оно больше нуля, меньше нуля или равно нулю. Затем программа завершается с помощью функции `exit(n)`, передавая информацию о коде завершения в оболочку. Командный файл должен вызывать эту программу и, проанализировав с помощью команды `$?`, выдать сообщение о том, какое число было введено.
 
-- Используется фреймворк [reveal.js](https://revealjs.com/)
-- Используется [тема](https://revealjs.com/themes/) `beige`
+`baton.c`:
 
-## Код для формата `html`
+``` C
+#include <stdlib.h>
+#include <stdio.h>
 
-- Тема задаётся в файле `Makefile`
+int main(int argc, char* argv[])
+{
+    char* govno = argv[1];
+    int i = atoi(govno);
 
-```make
-REVEALJS_THEME = beige 
+    if (i < 0)
+        { exit(1); }
+    else if (i > 0)
+        { exit(2); }
+    exit(0);
+}
 ```
-# Результаты
 
-## Получающиеся форматы
+`fedya.sh`:
 
-- Полученный `pdf`-файл можно демонстрировать в любой программе просмотра `pdf`
-- Полученный `html`-файл содержит в себе все ресурсы: изображения, css, скрипты
+``` bash
+#!/bin/bash
 
-# Элементы презентации
+if (($# < 1))
+then
+    echo fedya needs to eat more than one argument \
+    otherwise he will not work.
+    exit
+fi
+./baton $1
+exit=$?
+case $exit in
+0)  type=zeroish;;
+1)  type=negative;;
+2)  type=positive;;
+*)  type=stupid;;
+esac
+echo Exit code is $exit so it was $type number.
+```
 
-## Актуальность
+3. Написать командный файл, создающий указанное число файлов, пронумерованных последовательно от 1 до N (например 1.tmp, 2.tmp, 3.tmp,4.tmp и т.д.). Число файлов, которые необходимо создать, передаётся в аргументы командной строки. Этот же командный файл должен уметь удалять все созданные им файлы (если они существуют).
 
-- Даёт понять, о чём пойдёт речь
-- Следует широко и кратко описать проблему
-- Мотивировать свое исследование
-- Сформулировать цели и задачи
-- Возможна формулировка ожидаемых результатов
+`smekhail.sh`:
 
-## Цели и задачи
+``` bash
+#!/bin/bash
 
-- Не формулируйте более 1--2 целей исследования
+ext=.tmp
 
-## Материалы и методы
+function CreateFiles()
+{
+    i=1
+    while ((i <= $1))
+    do
+        echo Creating $i$ext
+        touch $i$ext
+        let i++
+    done
+}
 
-- Представляйте данные качественно
-- Количественно, только если крайне необходимо
-- Излишние детали не нужны
-
-## Содержание исследования
-
-- Предлагаемое решение задач исследования с обоснованием
-- Основные этапы работы
-
-## Результаты
-
-- Не нужны все результаты
-- Необходимы логические связки между слайдами
-- Необходимо показать понимание материала
+function RemoveFiles()
+{
+    i=1
+    while ((i<= $1))
+    do
+        echo Removing $i$ext
+        rm $i$ext
+        let i++
+    done
+}
 
 
-## Итоговый слайд
+if (($# < 1))
+then
+    echo Needed at least one parameter. Terminate
+    exit
+fi
 
-- Запоминается последняя фраза. © Штирлиц
-- Главное сообщение, которое вы хотите донести до слушателей
-- Избегайте использовать последний слайд вида *Спасибо за внимание*
+min=1
+if (($1 < 1))
+then
+    echo N is less than $min. Assuming N = $min.
+    N=$min
+else
+    N=$1
+fi
 
-# Рекомендации
+CreateFiles $N
+echo -------------------------
+RemoveFiles $N
+```
 
-## Принцип 10/20/30
+4. Написать командный файл, который с помощью команды tar запаковывает в архив все файлы в указанной директории. Модифицировать его так, чтобы запаковывались только те файлы, которые были изменены менее недели тому назад (использовать команду find).
 
-  - 10 слайдов
-  - 20 минут на доклад
-  - 30 кегль шрифта
+`potom.sh`:
 
-## Связь слайдов
+``` bash
+#!/bin/bash
+if (($# < 1))
+then
+    target=.
+else
+    target=$1
+fi
 
-::: incremental
+outputFile=$(pwd)\/archive.tar
+tar -cf $outputFile $(find $target -maxdepth 1 -atime -7 -type f)
+if (($? == 0))
+then
+    echo Successfully archived following files into $target:
+    tar -tf $outputFile
+fi
+```
 
-- Один слайд --- одна мысль
-- Нельзя ссылаться на объекты, находящиеся на предыдущих слайдах (например, на формулы)
-- Каждый слайд должен иметь заголовок
+## Ответы на контрольные вопросы
 
-:::
+1. Каково предназначение команды getopts?
 
-## Количество сущностей
+_Ответ_: команда анализирует аргументы, переданные скрипту.
 
-::: incremental
+2. Какое отношение метасимволы имеют к генерации имён файлов?
 
-- Человек может одновременно помнить $7 \pm 2$ элемента
-- При размещении информации на слайде старайтесь чтобы в сумме слайд содержал не более 5 элементов
-- Можно группировать элементы так, чтобы визуально было не более 5 групп
+_Ответ_: метасимволы позволяют создавать файлы, используя шаблоны.
 
-:::
+3. Какие операторы управления действиями вы знаете?
 
-## Общие рекомендации
+_Ответ_: никакие.
 
-::: incremental
+4. Какие операторы используются для прерывания цикла?
 
-- На слайд выносится та информация, которая без зрительной опоры воспринимается хуже
-- Слайды должны дополнять или обобщать содержание выступления или его частей, а не дублировать его
-- Информация на слайдах должна быть изложена кратко, чётко и хорошо структурирована
-- Слайд не должен быть перегружен графическими изображениями и текстом
-- Не злоупотребляйте анимацией и переходами
+_Ответ_: `break`, `continue`.
 
-:::
+5. Для чего нужны команды `false` и `true`?
 
-## Представление данных
+_Ответ_: `false` всегда возвращает код завершения, не равный нулю (т. е. ложь). Команда `true` выполняет обратное действие.
 
-::: incremental
+6. Что означает строка `if test -f man$s/$i.$s`, встреченная в командном файле?
 
-- Лучше представить в виде схемы
-- Менее оптимально представить в виде рисунка, графика, таблицы
-- Текст используется, если все предыдущие способы отображения информации не подошли
+_Ответ_: це проверка условия на наличие файла с шаблоном имени `if test -f man$s/$i.$s`.
 
-:::
+7. Объясните различия между конструкциями while и until.
+
+_Ответ_: при замене в операторе цикла while служебного слова while на until условие, при
+выполнении которого осуществляется выход из цикла, меняется на противоположное.
+В остальном оператор цикла while и оператор цикла until идентичны.
+
+## Заключение
+
+В ходе выполнения лабораторной работы были изучены основы программирования в командной оболочке OS Unix. Цель работы была достигнута.
 
